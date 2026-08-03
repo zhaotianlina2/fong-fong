@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Khalil Fong | 方大同纪念空间</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0a0a0a;
+      --bg-2:#111111;
+      --text:#f4f4f4;
+      --muted:#999999;
+      --accent:#c9a962;
+      --accent-dim:rgba(201,169,98,0.12);
+      --preloader-ease:cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+    html{scroll-behavior:smooth;}
+    html.no-smooth{scroll-behavior:auto;}
+    body{
+      font-family:'Playfair Display','Noto Serif SC','Songti SC',serif;
+      background-color:var(--bg);
+      color:var(--text);
+      line-height:1.6;
+      overflow-x:hidden;
+    }
+    body.preloading{overflow:hidden;}
+
+    /* ---------- 预加载遮罩 ---------- */
+    #preloader{
+      position:fixed;
+      inset:0;
+      z-index:1000;
+      background:#000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      opacity:1;
+      visibility:visible;
+      pointer-events:auto;
+      transition:none;
+    }
+    #preloader .preloader-logo{
+      font-family:'Playfair Display',serif;
+      color:#fff;
+      font-size:clamp(1.6rem,5vw,3rem);
+      font-weight:400;
+      letter-spacing:0.22em;
+      text-transform:uppercase;
+      opacity:0;
+      transform:translateY(12px);
+      animation:logoFadeIn 1.2s ease forwards;
+      animation-delay:0.45s;
+      will-change:opacity,transform;
+    }
+    @keyframes logoFadeIn{
+      to{opacity:1;transform:translateY(0);}
+    }
+    #preloader.exit{
+      opacity:0;
+      visibility:hidden;
+      transition:opacity 1.2s var(--preloader-ease),visibility 0s 1.2s;
+      pointer-events:none;
+    }
+
+    /* ---------- 全局背景纹理 ---------- */
+    .site-bg{
+      position:fixed;
+      inset:0;
+      z-index:-2;
+      background-color:var(--bg);
+      background-image:
+        url("assets/contour-bg.jpg"),
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"),
+        radial-gradient(circle at 28% 18%, rgba(201,169,98,0.10), transparent 42%),
+        radial-gradient(circle at 78% 82%, rgba(120,80,50,0.08), transparent 48%);
+      background-size:cover,auto,auto,auto;
+      background-blend-mode:screen,overlay,normal,normal;
+      opacity:0.9;
+    }
+
+    /* ---------- 导航 ---------- */
+    nav{
+      position:fixed;
+      top:0;left:0;right:0;
+      z-index:300;
+      padding:1.25rem 4vw;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      mix-blend-mode:difference;
+    }
+    .nav-logo{font-size:0.85rem;letter-spacing:0.2em;text-transform:uppercase;}
+    .nav-actions{display:flex;align-items:center;gap:1.5rem;}
+    .nav-btn{
+      font-family:inherit;
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.25);
+      color:#fff;
+      padding:0.55rem 1.1rem;
+      font-size:0.65rem;
+      letter-spacing:0.15em;
+      text-transform:uppercase;
+      cursor:pointer;
+      transition:all .35s var(--preloader-ease);
+    }
+    .nav-btn:hover{background:#fff;color:#000;border-color:#fff;}
+    .menu-toggle{
+      width:28px;height:20px;position:relative;cursor:pointer;background:none;border:none;
+    }
+    .menu-toggle span{
+      position:absolute;left:0;width:100%;height:2px;background:#fff;transition:all .3s;
+    }
+    .menu-toggle span:nth-child(1){top:0;}
+    .menu-toggle span:nth-child(2){top:50%;transform:translateY(-50%);}
+    .menu-toggle span:nth-child(3){bottom:0;}
+    .menu-open .menu-toggle span:nth-child(1){top:50%;transform:translateY(-50%) rotate(45deg);}
+    .menu-open .menu-toggle span:nth-child(2){opacity:0;}
+    .menu-open .menu-toggle span:nth-child(3){bottom:50%;transform:translateY(50%) rotate(-45deg);}
+
+    /* ---------- 全屏菜单 ---------- */
+    #menu{
+      position:fixed;
+      inset:0;
+      z-index:250;
+      background:rgba(0,0,0,0.96);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      opacity:0;
+      visibility:hidden;
+      transition:opacity .6s var(--preloader-ease),visibility 0s .6s;
+      pointer-events:none;
+    }
+    #menu.open{opacity:1;visibility:visible;transition:opacity .6s var(--preloader-ease),visibility 0s 0s;pointer-events:auto;}
+    .menu-inner{text-align:center;}
+    .menu-links{list-style:none;margin-bottom:3rem;}
+    .menu-links li{margin:1.2rem 0;opacity:0;transform:translateY(20px);transition:all .5s var(--preloader-ease);}
+    #menu.open .menu-links li{opacity:1;transform:translateY(0);}
+    #menu.open .menu-links li:nth-child(1){transition-delay:.1s;}
+    #menu.open .menu-links li:nth-child(2){transition-delay:.18s;}
+    #menu.open .menu-links li:nth-child(3){transition-delay:.26s;}
+    #menu.open .menu-links li:nth-child(4){transition-delay:.34s;}
+    #menu.open .menu-links li:nth-child(5){transition-delay:.42s;}
+    #menu.open .menu-links li:nth-child(6){transition-delay:.5s;}
+    .menu-links a{
+      font-family:'Playfair Display',serif;
+      font-size:clamp(2rem,7vw,4.5rem);
+      color:#fff;
+      text-decoration:none;
+      letter-spacing:0.06em;
+      position:relative;
+      display:inline-block;
+    }
+    .menu-links a::after{
+      content:'';position:absolute;left:0;bottom:0;width:0;height:2px;background:var(--accent);transition:width .4s var(--preloader-ease);
+    }
+    .menu-links a:hover::after{width:100%;}
+    .menu-socials{display:flex;gap:2rem;justify-content:center;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;opacity:0;transition:opacity .5s .55s;}
+    #menu.open .menu-socials{opacity:1;}
+    .menu-socials a{color:var(--muted);text-decoration:none;transition:color .3s;}
+    .menu-socials a:hover{color:var(--accent);}
+
+    /* ---------- Hero ---------- */
+    #hero{
+      position:relative;
+      width:100%;
+      height:100vh;
+      height:100dvh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      background:#0a0a0a;
+      z-index:1;
+    }
+    .hero-svg{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      z-index:0;
+      pointer-events:none;
+    }
+    .hero-svg image{
+      transform-origin:center center;
+      will-change:transform;
+    }
+    .hero-vignette{
+      position:absolute;
+      inset:0;
+      z-index:2;
+      pointer-events:none;
+      background:radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.45) 100%);
+    }
+    .signature-stage{
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-50%, 60vh);
+      z-index:3;
+      width:min(72vw, 720px);
+      opacity:0;
+      pointer-events:none;
+      will-change:transform, opacity;
+    }
+    .signature-stage img{
+      width:100%;
+      display:block;
+      filter:drop-shadow(0 4px 24px rgba(0,0,0,0.6));
+    }
+    .hero-content{
+      position:relative;
+      z-index:4;
+      text-align:center;
+      padding:2rem;
+      pointer-events:none;
+    }
+    .hero-content h1{
+      font-family:'Playfair Display',serif;
+      font-size:clamp(3rem,10vw,8rem);
+      font-weight:400;
+      letter-spacing:0.08em;
+      line-height:1;
+      margin-bottom:0.8rem;
+      text-transform:uppercase;
+    }
+    .hero-content .cn-name{
+      font-size:clamp(1rem,3vw,1.6rem);
+      letter-spacing:0.4em;
+      opacity:0.75;
+      font-weight:400;
+    }
+    .hero-content .years{
+      margin-top:1.2rem;
+      font-size:0.8rem;
+      letter-spacing:0.25em;
+      opacity:0.55;
+      text-transform:uppercase;
+    }
+    .hero-card{
+      position:absolute;
+      left:5vw;
+      top:50%;
+      transform:translateY(-50%);
+      z-index:4;
+      max-width:260px;
+      padding:1.4rem 1.6rem;
+      border-left:3px solid var(--accent);
+      background:rgba(0,0,0,0.35);
+      backdrop-filter:blur(4px);
+      pointer-events:auto;
+    }
+    .hero-card .label{
+      font-size:0.65rem;letter-spacing:0.18em;text-transform:uppercase;opacity:0.6;margin-bottom:0.6rem;
+    }
+    .hero-card .title{font-size:1.3rem;letter-spacing:0.04em;margin-bottom:0.3rem;}
+    .hero-card .meta{font-size:0.75rem;opacity:0.5;letter-spacing:0.08em;}
+    @media(max-width:900px){
+      .hero-card{left:4vw;top:auto;bottom:7rem;transform:none;max-width:200px;padding:1rem;}
+      .signature-stage{width:min(85vw,520px);}
+    }
+    .scroll-hint{
+      position:absolute;
+      bottom:2.5rem;
+      left:50%;
+      transform:translateX(-50%);
+      z-index:4;
+      font-size:0.65rem;
+      letter-spacing:0.2em;
+      text-transform:uppercase;
+      opacity:0.45;
+      animation:scrollPulse 2.2s ease-in-out infinite;
+    }
+    @keyframes scrollPulse{
+      0%,100%{transform:translateX(-50%) translateY(0);opacity:0.45;}
+      50%{transform:translateX(-50%) translateY(8px);opacity:0.8;}
+    }
+
+    /* ---------- 通用板块 ---------- */
+    section{padding:7rem 6vw;position:relative;z-index:1;}
+    .section-title{
+      font-family:'Playfair Display',serif;
+      font-size:clamp(1.8rem,5vw,3rem);
+      font-weight:400;
+      letter-spacing:0.1em;
+      margin-bottom:3rem;
+      text-transform:uppercase;
+      color:#fff;
+    }
+    .section-title span{display:block;font-size:0.7em;opacity:0.5;letter-spacing:0.25em;margin-top:0.3rem;}
+    .reveal{opacity:0;transform:translateY(40px);transition:opacity .9s var(--preloader-ease),transform .9s var(--preloader-ease);}
+    .reveal.visible{opacity:1;transform:translateY(0);}
+
+    /* ---------- Stats ---------- */
+    #stats{background:var(--bg-2);padding:5rem 6vw;}
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:2rem;
+      text-align:center;
+    }
+    .stat-item{padding:1.5rem;border:1px solid rgba(255,255,255,0.06);}
+    .stat-number{
+      font-family:'Playfair Display',serif;
+      font-size:clamp(2.4rem,6vw,4rem);
+      color:var(--accent);
+      line-height:1;
+      margin-bottom:0.6rem;
+    }
+    .stat-label{font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;opacity:0.55;}
+    @media(max-width:760px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
+
+    /* ---------- About ---------- */
+    #about{background:linear-gradient(180deg, transparent, rgba(0,0,0,0.6) 20%, rgba(0,0,0,0.9) 100%);}
+    .about-inner{
+      max-width:900px;
+      margin:0 auto;
+      display:grid;
+      grid-template-columns:1fr 1.2fr;
+      gap:4rem;
+      align-items:center;
+    }
+    .about-img{
+      width:100%;
+      aspect-ratio:3/4;
+      object-fit:cover;
+      filter:grayscale(25%) contrast(1.05);
+      border:1px solid rgba(255,255,255,0.08);
+    }
+    .about-text p{margin-bottom:1.2rem;font-size:1.05rem;opacity:0.85;}
+    .about-text .quote{
+      font-style:italic;
+      border-left:2px solid var(--accent);
+      padding-left:1.2rem;
+      opacity:0.7;
+    }
+    @media(max-width:800px){.about-inner{grid-template-columns:1fr;gap:2.5rem;}}
+
+    /* ---------- Discography ---------- */
+    #discography{background:var(--bg-2);position:relative;overflow:hidden;}
+    .disc-vinyl{
+      position:absolute;right:-8vw;top:-8vw;width:30vw;min-width:240px;opacity:0.12;pointer-events:none;animation:spin 24s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .album-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+      gap:2rem;
+    }
+    .album-card{
+      position:relative;
+      overflow:hidden;
+      background:#0d0d0d;
+      border:1px solid rgba(255,255,255,0.06);
+      transition:transform .5s var(--preloader-ease),border-color .4s;
+    }
+    .album-card:hover{transform:translateY(-6px);border-color:rgba(201,169,98,0.3);}
+    .album-card img{
+      width:100%;
+      aspect-ratio:1;
+      object-fit:cover;
+      display:block;
+      transition:transform .7s var(--preloader-ease),filter .5s;
+    }
+    .album-card:hover img{transform:scale(1.05);filter:brightness(0.85);}
+    .album-info{padding:1.1rem 1rem;}
+    .album-info h3{font-size:1rem;font-weight:400;letter-spacing:0.04em;margin-bottom:0.2rem;}
+    .album-info p{font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;opacity:0.5;}
+
+    /* ---------- Highlights 轮播 ---------- */
+    #highlights{background:var(--bg);}
+    .carousel{position:relative;overflow:hidden;}
+    .carousel-track{display:flex;transition:transform .7s var(--preloader-ease);}
+    .carousel-slide{flex:0 0 100%;padding:0 6vw;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;}
+    .carousel-slide img{width:100%;aspect-ratio:1;object-fit:cover;border:1px solid rgba(255,255,255,0.08);}
+    .carousel-slide .slide-info h3{font-size:clamp(1.6rem,4vw,2.8rem);font-family:'Playfair Display',serif;margin-bottom:1rem;}
+    .carousel-slide .slide-info p{opacity:0.7;margin-bottom:1.5rem;}
+    .carousel-slide .slide-info a{
+      display:inline-block;color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent);font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;padding-bottom:0.2rem;
+    }
+    .carousel-btn{
+      position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#fff;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .3s;z-index:2;
+    }
+    .carousel-btn:hover{background:var(--accent);color:#000;border-color:var(--accent);}
+    .carousel-btn.prev{left:2vw;}
+    .carousel-btn.next{right:2vw;}
+    @media(max-width:800px){
+      .carousel-slide{grid-template-columns:1fr;gap:1.5rem;padding:0 3rem;text-align:center;}
+      .carousel-btn.prev{left:0.5rem;}.carousel-btn.next{right:0.5rem;}
+    }
+
+    /* ---------- Timeline ---------- */
+    #timeline{background:var(--bg-2);}
+    .timeline{max-width:860px;margin:0 auto;position:relative;padding-left:2rem;}
+    .timeline::before{
+      content:'';position:absolute;left:0;top:0;bottom:0;width:1px;background:linear-gradient(180deg,var(--accent),transparent);
+    }
+    .timeline-item{position:relative;margin-bottom:2rem;cursor:pointer;}
+    .timeline-item::before{
+      content:'';position:absolute;left:-2rem;top:0.4rem;width:9px;height:9px;border-radius:50%;background:var(--bg);border:2px solid var(--accent);transform:translateX(-4px);transition:background .3s;
+    }
+    .timeline-item:hover::before{background:var(--accent);}
+    .timeline-year{font-size:1.3rem;font-family:'Playfair Display',serif;color:var(--accent);}
+    .timeline-title{font-size:1rem;margin:0.2rem 0 0.4rem;}
+    .timeline-detail{
+      max-height:0;
+      overflow:hidden;
+      opacity:0;
+      transition:max-height .5s var(--preloader-ease),opacity .4s;
+    }
+    .timeline-item.open .timeline-detail{max-height:200px;opacity:0.7;}
+    .timeline-detail p{font-size:0.9rem;opacity:0.8;}
+
+    /* ---------- Gallery ---------- */
+    #gallery{background:var(--bg);}
+    .gallery-grid{
+      display:grid;
+      grid-template-columns:repeat(12,1fr);
+      gap:1rem;
+    }
+    .gallery-item{
+      grid-column:span 4;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,0.05);
+      aspect-ratio:1;
+    }
+    .gallery-item:nth-child(1){grid-column:span 6;aspect-ratio:16/10;}
+    .gallery-item:nth-child(4){grid-column:span 6;aspect-ratio:16/10;}
+    .gallery-item:nth-child(5){grid-column:span 4;aspect-ratio:3/4;}
+    .gallery-item img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      filter:grayscale(15%);
+      transition:transform .8s var(--preloader-ease),filter .5s;
+    }
+    .gallery-item:hover img{transform:scale(1.06);filter:grayscale(0%);}
+    @media(max-width:900px){
+      .gallery-item,.gallery-item:nth-child(1),.gallery-item:nth-child(4),.gallery-item:nth-child(5){grid-column:span 6;aspect-ratio:1;}
+    }
+    @media(max-width:560px){
+      .gallery-item,.gallery-item:nth-child(1),.gallery-item:nth-child(4),.gallery-item:nth-child(5){grid-column:span 12;aspect-ratio:1;}
+    }
+
+    /* ---------- Labels / Partners ---------- */
+    #labels{padding:4rem 6vw;background:var(--bg);border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);}
+    .labels-title{text-align:center;font-size:0.7rem;letter-spacing:0.25em;text-transform:uppercase;opacity:0.5;margin-bottom:2rem;}
+    .labels-strip{
+      display:flex;justify-content:center;align-items:center;gap:4rem;flex-wrap:wrap;
+    }
+    .labels-strip img{max-height:42px;width:auto;opacity:0.55;filter:grayscale(100%);transition:opacity .3s,filter .3s;}
+    .labels-strip img:hover{opacity:1;filter:grayscale(0%);}
+
+    /* ---------- Quote ---------- */
+    #quote{
+      min-height:60vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      background:radial-gradient(circle at center, rgba(201,169,98,0.08), transparent 60%);
+    }
+    .quote-block{max-width:760px;padding:2rem;}
+    .quote-block p{font-size:clamp(1.4rem,4vw,2.4rem);line-height:1.5;letter-spacing:0.02em;font-style:italic;}
+    .quote-block .author{margin-top:1.5rem;font-size:0.8rem;letter-spacing:0.2em;text-transform:uppercase;opacity:0.55;}
+
+    /* ---------- Smooth scroll toggle ---------- */
+    .smooth-toggle{
+      position:fixed;
+      left:1.2rem;
+      bottom:1.2rem;
+      z-index:150;
+      background:rgba(0,0,0,0.7);
+      border:1px solid rgba(255,255,255,0.15);
+      color:#fff;
+      padding:0.5rem 0.9rem;
+      font-family:inherit;
+      font-size:0.6rem;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      cursor:pointer;
+      backdrop-filter:blur(4px);
+      transition:all .3s;
+    }
+    .smooth-toggle:hover{border-color:var(--accent);color:var(--accent);}
+
+    /* ---------- Footer ---------- */
+    footer{
+      padding:4rem 6vw 3rem;
+      text-align:center;
+      background:var(--bg-2);
+      position:relative;
+      z-index:1;
+    }
+    .footer-logo{
+      font-family:'Playfair Display',serif;
+      font-size:1.2rem;
+      letter-spacing:0.18em;
+      text-transform:uppercase;
+      margin-bottom:1rem;
+    }
+    .footer-socials{display:flex;justify-content:center;gap:2rem;margin:1.5rem 0;}
+    .footer-socials a{font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .3s;}
+    .footer-socials a:hover{color:var(--accent);}
+    footer p{font-size:0.75rem;opacity:0.45;letter-spacing:0.08em;}
+  </style>
+</head>
+<body class="preloading">
+
+  <!-- 预加载遮罩 -->
+  <div id="preloader" aria-hidden="true">
+    <div class="preloader-logo">Khalil Fong</div>
+  </div>
+
+  <!-- 全屏菜单 -->
+  <div id="menu" aria-hidden="true">
+    <div class="menu-inner">
+      <ul class="menu-links">
+        <li><a href="#hero" class="menu-link">Home</a></li>
+        <li><a href="#stats" class="menu-link">Stats</a></li>
+        <li><a href="#about" class="menu-link">About</a></li>
+        <li><a href="#discography" class="menu-link">Discography</a></li>
+        <li><a href="#highlights" class="menu-link">Highlights</a></li>
+        <li><a href="#gallery" class="menu-link">Gallery</a></li>
+      </ul>
+      <div class="menu-socials">
+        <a href="#" target="_blank">YouTube</a>
+        <a href="#" target="_blank">Instagram</a>
+        <a href="#" target="_blank">Spotify</a>
+        <a href="#" target="_blank">Apple Music</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="site-bg"></div>
+
+  <nav>
+    <div class="nav-logo">Khalil Fong</div>
+    <div class="nav-actions">
+      <button class="nav-btn" onclick="window.open('https://open.spotify.com','_blank')">Listen</button>
+      <button class="menu-toggle" aria-label="Toggle menu" id="menuToggle">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <button class="smooth-toggle" id="smoothToggle">Disable smooth scroll</button>
+
+  <main id="main">
+    <section id="hero">
+      <svg class="hero-svg" id="heroSvg" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="spotGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="45%" stop-color="white"/>
+            <stop offset="100%" stop-color="black"/>
+          </radialGradient>
+          <mask id="spotMask" maskUnits="userSpaceOnUse">
+            <rect width="100%" height="100%" fill="black"/>
+            <circle id="spotCircle" cx="-999" cy="-999" r="160" fill="url(#spotGrad)"/>
+          </mask>
+        </defs>
+        <image class="hero-base" href="assets/base.png" width="100%" height="100%" preserveAspectRatio="xMidYMid slice"/>
+        <image class="hero-light" href="assets/portrait-light.png" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" mask="url(#spotMask)"/>
+      </svg>
+      <div class="hero-vignette"></div>
+      <div class="signature-stage"><img src="assets/signature.svg" alt=""></div>
+      <div class="hero-card">
+        <div class="label">Latest Album</div>
+        <div class="title">夢想家 The Dreamer</div>
+        <div class="meta">2024 · 11 tracks</div>
+      </div>
+      <div class="hero-content">
+        <h1>Khalil Fong</h1>
+        <div class="cn-name">方大同</div>
+        <div class="years">1983 — 2025</div>
+      </div>
+      <div class="scroll-hint">Scroll</div>
+    </section>
+
+    <section id="stats" class="reveal">
+      <div class="stats-grid">
+        <div class="stat-item"><div class="stat-number" data-target="11">0</div><div class="stat-label">Studio Albums</div></div>
+        <div class="stat-item"><div class="stat-number" data-target="200">0</div><div class="stat-label">Songs</div></div>
+        <div class="stat-item"><div class="stat-number" data-target="19">0</div><div class="stat-label">Years Active</div></div>
+        <div class="stat-item"><div class="stat-number" data-target="9">0</div><div class="stat-label">Golden Melody Noms</div></div>
+      </div>
+    </section>
+
+    <section id="about" class="reveal">
+      <div class="section-title">About <span>關於</span></div>
+      <div class="about-inner">
+        <img src="assets/e8843644-f40a-4765-bca6-0453c2093afa_1000041618.png" alt="Khalil Fong" class="about-img">
+        <div class="about-text">
+          <p>方大同，香港創作歌手、音樂製作人，以靈魂樂、R&B 與中式音樂元素的融合著稱。</p>
+          <p>從《Soulboy》到《Journey to the West》，他用溫暖而克制的聲線，記錄了無數關於愛、夢想與時間的故事。</p>
+          <p class="quote">「音樂帶給我了很多，所以我也會在音樂事業上努力工作。」</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="discography" class="reveal">
+      <img src="assets/vinyl-black.jpg" alt="" class="disc-vinyl">
+      <div class="section-title">Discography <span>作品</span></div>
+      <div class="album-grid">
+        <div class="album-card">
+          <img src="assets/8aa35343-08ff-4bf6-b744-47c96e29032b_soulboy.jpg" alt="Soulboy">
+          <div class="album-info"><h3>Soulboy</h3><p>2005</p></div>
+        </div>
+        <div class="album-card">
+          <img src="assets/2d973c02-502a-407b-92ca-7672f53416fc_love-love-love.jpg" alt="愛愛愛">
+          <div class="album-info"><h3>愛愛愛</h3><p>2006</p></div>
+        </div>
+        <div class="album-card">
+          <img src="assets/4484d688-e19c-45ba-969b-c99c81f178c8_wonderland.jpg" alt="Wonderland">
+          <div class="album-info"><h3>Wonderland</h3><p>2007</p></div>
+        </div>
+        <div class="album-card">
+          <img src="assets/59dc5ec2-5de0-4577-888b-f9da42251bef_orange-moon.jpg" alt="橙月">
+          <div class="album-info"><h3>橙月</h3><p>2008</p></div>
+        </div>
+        <div class="album-card">
+          <img src="assets/7a8bbb14-58cc-419b-bc77-5f4406b26bf1_fifteen.jpg" alt="15">
+          <div class="album-info"><h3>15</h3><p>2011</p></div>
+        </div>
+        <div class="album-card">
+          <img src="assets/64394abf-0a0d-4f3d-b932-5bd540d3271d_back-to-wonderland.jpg" alt="回到未來">
+          <div class="album-info"><h3>回到未來</h3><p>2012</p></div>
+        </div>
+        <div class="album-card">
+          <img src="assets/14af9634-fab8-4a12-ad52-bba1c88f94ea_dangerous-world.jpg" alt="危險世界">
+          <div class="album-info"><h3>危險世界</h3><p>2014</p></div>
+        </div>
+        <div class="album-card">
+          <img src="assets/8d6d4a23-eca5-4165-824d-d755cc1da1a9_wukong.png" alt="Journey to the West">
+          <div class="album-info"><h3>Journey to the West</h3><p>2016</p></div>
+        </div>
+        <div class="album-card">
+          <img src="assets/9805b7c9-f2e9-41ff-83b9-cf51cc02cb47_the-dreamer.jpg" alt="夢想家">
+          <div class="album-info"><h3>夢想家</h3><p>2024</p></div>
+        </div>
+        <div class="album-card">
+          <img src="assets/cffb15cc-ace7-4139-89a5-6dcb764948bb_timeless.jpg" alt="Timeless">
+          <div class="album-info"><h3>Timeless 可啦思刻</h3><p>2009</p></div>
+        </div>
+        <div class="album-card">
+          <img src="assets/f2f17ac6-477c-4c41-a206-838fc72c2485_twenty-three.png" alt="Twenty Three">
+          <div class="album-info"><h3>Twenty Three</h3><p>2017</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="highlights" class="reveal">
+      <div class="section-title">Highlights <span>精選</span></div>
+      <div class="carousel">
+        <div class="carousel-track" id="carouselTrack">
+          <div class="carousel-slide">
+            <img src="assets/9805b7c9-f2e9-41ff-83b9-cf51cc02cb47_the-dreamer.jpg" alt="夢想家">
+            <div class="slide-info">
+              <h3>夢想家 The Dreamer</h3>
+              <p>2024 年回歸之作，用純粹的音樂語言回應病痛與生命的課題，被樂迷視為最真誠的告白。</p>
+              <a href="#discography">View full discography</a>
+            </div>
+          </div>
+          <div class="carousel-slide">
+            <img src="assets/8d6d4a23-eca5-4165-824d-d755cc1da1a9_wukong.png" alt="JTW">
+            <div class="slide-info">
+              <h3>Journey to the West</h3>
+              <p>獨立廠牌首張概念專輯，以「金」與「黑」雙碟形式，把東方神話與西方靈魂樂熔於一爐。</p>
+              <a href="#discography">View full discography</a>
+            </div>
+          </div>
+          <div class="carousel-slide">
+            <img src="assets/59dc5ec2-5de0-4577-888b-f9da42251bef_orange-moon.jpg" alt="橙月">
+            <div class="slide-info">
+              <h3>橙月 Orange Moon</h3>
+              <p>最具代表性的溫暖專輯，《Love Song》《三人遊》等作品成為華語 R&B 經典。</p>
+              <a href="#discography">View full discography</a>
+            </div>
+          </div>
+        </div>
+        <button class="carousel-btn prev" id="carouselPrev" aria-label="Previous">‹</button>
+        <button class="carousel-btn next" id="carouselNext" aria-label="Next">›</button>
+      </div>
+    </section>
+
+    <section id="timeline" class="reveal">
+      <div class="section-title">Timeline <span>歷程</span></div>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-year">2005</div>
+          <div class="timeline-title">出道專輯《Soulboy》</div>
+          <div class="timeline-detail"><p>以〈妹妹〉、〈春風吹〉展露靈魂樂才華，被譽為「香港 R&B 小天王」。</p></div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2008</div>
+          <div class="timeline-title">《橙月》與大眾突破</div>
+          <div class="timeline-detail"><p>《Love Song》紅遍華語樂壇，專輯成為許多人認識方大同的起點。</p></div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2016</div>
+          <div class="timeline-title">獨立廠牌與《Journey to the West》</div>
+          <div class="timeline-detail"><p>成立賦音樂，推出雙碟概念專輯，實驗性與個人風格達到高峰。</p></div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2024</div>
+          <div class="timeline-title">《夢想家》回歸</div>
+          <div class="timeline-detail"><p>睽違多年發行全新專輯，用音樂傳遞對生命的熱愛與平靜。</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="gallery" class="reveal">
+      <div class="section-title">Gallery <span>影像</span></div>
+      <div class="gallery-grid">
+        <div class="gallery-item"><img src="assets/aeba1c96-e6ff-4841-891c-9d63fadf1391_1000040774_1.png" alt="collage"></div>
+        <div class="gallery-item"><img src="assets/e4030968-752e-4ce3-81d2-7bb4e3a088ce_1000041584.png" alt="Khalil"></div>
+        <div class="gallery-item"><img src="assets/1f23ed8c-8910-4d8e-a2bc-d3da6ae827c6_1000039386.png" alt="illustration"></div>
+        <div class="gallery-item"><img src="assets/c2c27964-b455-4b26-bf9d-1dc43f9cb197_1000041613.png" alt="live"></div>
+        <div class="gallery-item"><img src="assets/45e99a50-4c8f-44c9-9b1a-f1dd30502d3e_IMG_20260713_235611.png" alt="portrait"></div>
+        <div class="gallery-item"><img src="assets/d68464a0-5ef2-4c6e-b53c-582dadad95e9_1000040784.png" alt="sketch"></div>
+        <div class="gallery-item"><img src="assets/65c475db-79fe-4b76-8baf-bcbba73ca18c_1000041601.png" alt="suit"></div>
+        <div class="gallery-item"><img src="assets/f5f33df2-77df-4352-90c2-4456aa898030_1000041609.png" alt="guitar"></div>
+      </div>
+    </section>
+
+    <section id="labels" class="reveal">
+      <div class="labels-title">Labels & Partners</div>
+      <div class="labels-strip">
+        <img src="assets/d408247b-f79b-40f3-8014-7ab2962dc170_fu-music-logo.png" alt="賦音樂">
+        <img src="assets/828e23bc-16b7-40d2-aa3b-d8fd140b0fa2_jtw-gold.png" alt="JTW">
+        <img src="assets/a82d5dc4-f493-4f0f-a163-f18ac4bc2aec_jtw-black.png" alt="JTW Black">
+      </div>
+    </section>
+
+    <section id="quote" class="reveal">
+      <div class="quote-block">
+        <p>「不過我只想寫出一首 Love Song，只想寫出一首 Love Song。」</p>
+        <div class="author">— Love Song</div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-logo">Khalil Fong</div>
+    <div class="footer-socials">
+      <a href="#">YouTube</a>
+      <a href="#">Instagram</a>
+      <a href="#">Spotify</a>
+      <a href="#">Apple Music</a>
+    </div>
+    <p>Forever in the music. In memory of 方大同.</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <script type="module">
+    /* ---------- Preloader ---------- */
+    const PRELOADER = {
+      dom: document.getElementById('preloader'),
+      startTime: performance.now(),
+      minDuration: 2200,
+      ready: { bg: false, images: false },
+      checked: false,
+
+      init() {
+        document.body.classList.add('preloading');
+        requestAnimationFrame(() => this.setReady('bg'));
+        this.loadImages(['assets/base.png', 'assets/portrait-light.png', 'assets/signature.svg'])
+          .then(() => this.setReady('images'))
+          .catch(() => this.setReady('images'));
+      },
+
+      loadImages(urls) {
+        return Promise.all(urls.map(src => new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+          img.src = src;
+        })));
+      },
+
+      setReady(key) {
+        if (this.ready[key]) return;
+        this.ready[key] = true;
+        this.check();
+      },
+
+      check() {
+        if (this.checked) return;
+        if (this.ready.bg && this.ready.images) {
+          this.checked = true;
+          const elapsed = performance.now() - this.startTime;
+          const wait = Math.max(0, this.minDuration - elapsed);
+          setTimeout(() => this.exit(), wait);
+        }
+      },
+
+      exit() {
+        if (!this.dom) return;
+        this.dom.classList.add('exit');
+        const onEnd = (e) => {
+          if (e.propertyName !== 'opacity' && e.propertyName !== 'visibility') return;
+          this.dom.remove();
+          document.body.classList.remove('preloading');
+          window.dispatchEvent(new CustomEvent('preloader:done'));
+        };
+        this.dom.addEventListener('transitionend', onEnd, { once: true });
+        setTimeout(() => {
+          if (document.body.contains(this.dom)) {
+            this.dom.remove();
+            document.body.classList.remove('preloading');
+            window.dispatchEvent(new CustomEvent('preloader:done'));
+          }
+        }, 1500);
+      }
+    };
+
+    PRELOADER.init();
+
+    /* ---------- Hero viewport mask & scroll cinematic ---------- */
+    (function initHeroEffects() {
+      gsap.registerPlugin(ScrollTrigger);
+
+      const hero = document.getElementById('hero');
+      const heroSvg = document.getElementById('heroSvg');
+      const spotCircle = document.getElementById('spotCircle');
+      const isTouch = window.matchMedia('(pointer: coarse)').matches;
+
+      // Soft circular viewport follows cursor with eased inertia
+      if (!isTouch && hero && heroSvg && spotCircle) {
+        let mx = -999, my = -999, tx = -999, ty = -999;
+        let active = false;
+        const ease = 0.12;
+
+        const setTarget = (x, y) => {
+          tx = x;
+          ty = y;
+          active = true;
+        };
+        const getHeroRect = () => heroSvg.getBoundingClientRect();
+        const inHero = (x, y, rect) => x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+
+        const onMove = (e) => {
+          const c = e.touches ? e.touches[0] : e;
+          const rect = getHeroRect();
+          if (!inHero(c.clientX, c.clientY, rect)) {
+            active = false;
+            return;
+          }
+          setTarget(c.clientX - rect.left, c.clientY - rect.top);
+        };
+        const onLeave = () => {
+          active = false;
+          tx = -999;
+          ty = -999;
+        };
+
+        window.addEventListener('mousemove', onMove, { passive: true });
+        window.addEventListener('mouseout', (e) => { if (e.relatedTarget === null) onLeave(); }, { passive: true });
+        window.addEventListener('touchstart', onMove, { passive: true });
+        window.addEventListener('touchmove', onMove, { passive: true });
+        window.addEventListener('touchend', onLeave, { passive: true });
+
+        gsap.ticker.add(() => {
+          if (!active && Math.abs(tx - mx) < 0.5 && Math.abs(ty - my) < 0.5) return;
+          mx += (tx - mx) * ease;
+          my += (ty - my) * ease;
+          spotCircle.setAttribute('cx', mx);
+          spotCircle.setAttribute('cy', my);
+        });
+      }
+
+      // Cinematic scroll: pin, shrink portrait, signature rises
+      const heroTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: '#hero',
+          start: 'top top',
+          end: '+=130%',
+          pin: true,
+          scrub: 0.8,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+        }
+      });
+
+      heroTl
+        // light layer keeps shrinking throughout; base spreads outward first, then shrinks
+        .to('#heroSvg .hero-light', { scale: 0.55, duration: 1, ease: 'none' }, 0)
+        .fromTo('#heroSvg .hero-base', { scale: 1 }, { scale: 1.2, duration: 0.5, ease: 'power2.out' }, 0)
+        .to('#heroSvg .hero-base', { scale: 0.55, duration: 0.5, ease: 'power2.in' }, 0.5)
+        .to('#hero .hero-content', { opacity: 0, y: -40, duration: 0.25 }, 0)
+        .to('#hero .hero-card', { opacity: 0, y: 30, duration: 0.25 }, 0)
+        .to('.scroll-hint', { opacity: 0, duration: 0.08 }, 0)
+        .fromTo('.signature-stage',
+          { y: '60vh', opacity: 0, scale: 0.92 },
+          { y: '-50%', opacity: 1, scale: 1, duration: 0.5, ease: 'power2.out' },
+          0.35
+        )
+        // as text fades, spotlight interaction ends and base replaces the light layer
+        .to('#heroSvg .hero-light', { opacity: 0, duration: 0.25 }, 0.25);
+
+      window.addEventListener('preloader:done', () => ScrollTrigger.refresh(), { once: true });
+    })();
+
+    /* ---------- Menu ---------- */
+    const menu = document.getElementById('menu');
+    const menuToggle = document.getElementById('menuToggle');
+    const menuLinks = document.querySelectorAll('.menu-link');
+
+    function toggleMenu(force) {
+      const open = force !== undefined ? force : !menu.classList.contains('open');
+      menu.classList.toggle('open', open);
+      document.body.classList.toggle('menu-open', open);
+      menu.setAttribute('aria-hidden', !open);
+      if (open) document.body.style.overflow = 'hidden';
+      else document.body.style.overflow = '';
+    }
+    menuToggle.addEventListener('click', () => toggleMenu());
+    menuLinks.forEach(a => a.addEventListener('click', () => toggleMenu(false)));
+
+    /* ---------- Smooth scroll toggle ---------- */
+    const smoothToggle = document.getElementById('smoothToggle');
+    let smoothEnabled = true;
+    smoothToggle.addEventListener('click', () => {
+      smoothEnabled = !smoothEnabled;
+      document.documentElement.classList.toggle('no-smooth', !smoothEnabled);
+      smoothToggle.textContent = smoothEnabled ? 'Disable smooth scroll' : 'Enable smooth scroll & top';
+      if (!smoothEnabled) window.scrollTo({ top: 0, behavior: 'auto' });
+    });
+
+    /* ---------- Carousel ---------- */
+    const track = document.getElementById('carouselTrack');
+    const slides = track.children;
+    const prevBtn = document.getElementById('carouselPrev');
+    const nextBtn = document.getElementById('carouselNext');
+    let currentSlide = 0;
+    function updateCarousel() {
+      track.style.transform = `translateX(-${currentSlide * 100}%)`;
+    }
+    prevBtn.addEventListener('click', () => { currentSlide = (currentSlide - 1 + slides.length) % slides.length; updateCarousel(); });
+    nextBtn.addEventListener('click', () => { currentSlide = (currentSlide + 1) % slides.length; updateCarousel(); });
+
+    /* ---------- Timeline accordion ---------- */
+    document.querySelectorAll('.timeline-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.timeline-item').forEach(i => i.classList.remove('open'));
+        if (!isOpen) item.classList.add('open');
+      });
+    });
+
+    /* ---------- Scroll reveal ---------- */
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    /* ---------- Stats counters ---------- */
+    const counterObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const target = +el.dataset.target;
+          const duration = 1800;
+          const start = performance.now();
+          function step(now) {
+            const p = Math.min((now - start) / duration, 1);
+            const ease = 1 - Math.pow(1 - p, 3);
+            el.textContent = Math.round(target * ease);
+            if (p < 1) requestAnimationFrame(step);
+          }
+          requestAnimationFrame(step);
+          counterObserver.unobserve(el);
+        }
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.stat-number').forEach(el => counterObserver.observe(el));
+  </script>
+</body>
+</html>
