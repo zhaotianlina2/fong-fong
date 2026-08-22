@@ -165,7 +165,7 @@
     .menu-socials a{color:var(--muted);text-decoration:none;transition:color .3s;}
     .menu-socials a:hover{color:var(--accent);}
 
-    /* ---------- Hero ---------- */
+    /* ---------- Hero stage spotlight ---------- */
     #hero{
       position:relative;
       width:100%;
@@ -175,110 +175,143 @@
       align-items:center;
       justify-content:center;
       overflow:hidden;
-      background:#0a0a0a;
+      background:#050505;
       z-index:1;
+      cursor:none;
     }
-    .hero-svg{
+    #hero::before{
+      content:'';
       position:absolute;
       inset:0;
-      width:100%;
-      height:100%;
       z-index:0;
-      pointer-events:none;
+      background:
+        radial-gradient(circle at 50% 40%, rgba(255,248,220,0.06), transparent 50%),
+        url("assets/contour-bg.jpg");
+      background-size:cover,cover;
+      background-blend-mode:screen,normal;
+      opacity:0.35;
+      filter:brightness(0.4) contrast(1.1);
     }
-    .hero-svg image{
-      transform-origin:center center;
-      will-change:transform;
-    }
-    .hero-vignette{
+    .hero-particles{
       position:absolute;
       inset:0;
       z-index:2;
       pointer-events:none;
-      background:radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.45) 100%);
+      opacity:0.75;
+      mix-blend-mode:screen;
     }
-    .signature-stage{
+    .hero-spotlight{
       position:absolute;
-      left:50%;
-      top:50%;
-      transform:translate(-50%, 60vh);
-      z-index:3;
-      width:min(72vw, 720px);
-      opacity:0;
+      inset:0;
+      z-index:1;
       pointer-events:none;
-      will-change:transform, opacity;
+      opacity:0;
+      transition:opacity .8s ease;
     }
-    .signature-stage img{
-      width:100%;
-      display:block;
-      filter:drop-shadow(0 4px 24px rgba(0,0,0,0.6));
+    .hero-spotlight.active{opacity:1;}
+    .hero-flash{
+      position:absolute;
+      inset:0;
+      z-index:10;
+      pointer-events:none;
+      background:#fff;
+      opacity:0;
+    }
+    .hero-flash.flash-anim{
+      animation:flashBurst .55s var(--preloader-ease) forwards;
+    }
+    @keyframes flashBurst{
+      0%{opacity:0;}
+      15%{opacity:0.95;}
+      100%{opacity:0;}
     }
     .hero-content{
       position:relative;
-      z-index:4;
+      z-index:5;
       text-align:center;
       padding:2rem;
       pointer-events:none;
+      mix-blend-mode:screen;
     }
     .hero-content h1{
       font-family:'Playfair Display',serif;
-      font-size:clamp(3rem,10vw,8rem);
+      font-size:clamp(3.2rem,11vw,9rem);
       font-weight:400;
-      letter-spacing:0.08em;
+      letter-spacing:0.14em;
       line-height:1;
       margin-bottom:0.8rem;
       text-transform:uppercase;
+      text-shadow:0 2px 40px rgba(0,0,0,0.6);
     }
     .hero-content .cn-name{
       font-size:clamp(1rem,3vw,1.6rem);
-      letter-spacing:0.4em;
-      opacity:0.75;
+      letter-spacing:0.5em;
+      opacity:0.85;
       font-weight:400;
+      margin-bottom:0.4rem;
     }
     .hero-content .years{
-      margin-top:1.2rem;
       font-size:0.8rem;
       letter-spacing:0.25em;
       opacity:0.55;
       text-transform:uppercase;
+      margin-bottom:2.2rem;
     }
+    .hero-enter{
+      display:inline-block;
+      font-size:0.65rem;
+      letter-spacing:0.2em;
+      text-transform:uppercase;
+      color:#fff;
+      border-bottom:1px solid rgba(255,255,255,0.4);
+      padding-bottom:0.3rem;
+      opacity:0.7;
+      pointer-events:auto;
+      cursor:none;
+      transition:opacity .3s, border-color .3s, letter-spacing .3s;
+    }
+    .hero-enter:hover{opacity:1; border-color:var(--accent); letter-spacing:0.25em;}
     .hero-card{
       position:absolute;
       left:5vw;
       top:50%;
       transform:translateY(-50%);
-      z-index:4;
+      z-index:5;
       max-width:260px;
       padding:1.4rem 1.6rem;
-      border-left:3px solid var(--accent);
-      background:rgba(0,0,0,0.35);
+      border-left:2px solid rgba(255,255,255,0.25);
+      background:rgba(0,0,0,0.25);
       backdrop-filter:blur(4px);
       pointer-events:auto;
+      cursor:none;
     }
     .hero-card .label{
-      font-size:0.65rem;letter-spacing:0.18em;text-transform:uppercase;opacity:0.6;margin-bottom:0.6rem;
+      font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;opacity:0.55;margin-bottom:0.6rem;
     }
-    .hero-card .title{font-size:1.3rem;letter-spacing:0.04em;margin-bottom:0.3rem;}
-    .hero-card .meta{font-size:0.75rem;opacity:0.5;letter-spacing:0.08em;}
+    .hero-card .title{font-size:1.1rem;letter-spacing:0.06em;margin-bottom:0.3rem;}
+    .hero-card .meta{font-size:0.7rem;opacity:0.45;letter-spacing:0.08em;}
     @media(max-width:900px){
-      .hero-card{left:4vw;top:auto;bottom:7rem;transform:none;max-width:200px;padding:1rem;}
-      .signature-stage{width:min(85vw,520px);}
+      #hero{cursor:auto;}
+      .hero-enter{cursor:pointer;}
+      .hero-card{left:4vw;top:auto;bottom:8rem;transform:none;max-width:200px;padding:1rem;}
     }
     .scroll-hint{
       position:absolute;
       bottom:2.5rem;
       left:50%;
       transform:translateX(-50%);
-      z-index:4;
-      font-size:0.65rem;
-      letter-spacing:0.2em;
+      z-index:5;
+      font-size:0.6rem;
+      letter-spacing:0.18em;
       text-transform:uppercase;
-      opacity:0.45;
+      opacity:0.35;
       animation:scrollPulse 2.2s ease-in-out infinite;
+      pointer-events:auto;
+      cursor:none;
     }
     @keyframes scrollPulse{
-      0%,100%{transform:translateX(-50%) translateY(0);opacity:0.45;}
-      50%{transform:translateX(-50%) translateY(8px);opacity:0.8;}
+      0%,100%{transform:translateX(-50%) translateY(0);opacity:0.35;}
+      50%{transform:translateX(-50%) translateY(8px);opacity:0.7;}
     }
 
     /* ---------- 通用板块 ---------- */
@@ -553,22 +586,33 @@
 
   <main id="main">
     <section id="hero">
-      <svg class="hero-svg" id="heroSvg" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <canvas class="hero-particles" id="heroParticles" aria-hidden="true"></canvas>
+      <svg class="hero-spotlight" id="heroSpotlight" width="100%" height="100%" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <radialGradient id="spotGrad" cx="50%" cy="50%" r="50%">
-            <stop offset="45%" stop-color="white"/>
-            <stop offset="100%" stop-color="black"/>
+          <radialGradient id="beamGrad" cx="50%" cy="0%" r="100%">
+            <stop offset="0%" stop-color="rgba(255,248,220,0.55)"/>
+            <stop offset="35%" stop-color="rgba(201,169,98,0.18)"/>
+            <stop offset="70%" stop-color="rgba(201,169,98,0.04)"/>
+            <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
           </radialGradient>
-          <mask id="spotMask" maskUnits="userSpaceOnUse">
-            <rect width="100%" height="100%" fill="black"/>
-            <circle id="spotCircle" cx="-999" cy="-999" r="160" fill="url(#spotGrad)"/>
-          </mask>
+          <radialGradient id="poolGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="rgba(255,248,220,0.45)"/>
+            <stop offset="50%" stop-color="rgba(201,169,98,0.12)"/>
+            <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+          </radialGradient>
+          <filter id="beamBlur" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="18" result="blur"/>
+            <feComponentTransfer in="blur">
+              <feFuncA type="linear" slope="1.2"/>
+            </feComponentTransfer>
+          </filter>
         </defs>
-        <image class="hero-base" href="assets/base.png" width="100%" height="100%" preserveAspectRatio="xMidYMid slice"/>
-        <image class="hero-light" href="assets/portrait-light.png" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" mask="url(#spotMask)"/>
+        <g id="beamGroup" filter="url(#beamBlur)">
+          <ellipse id="lightPool" cx="50%" cy="88%" rx="28%" ry="10%" fill="url(#poolGrad)" opacity="0.7"/>
+          <path id="lightBeam" d="M0,0 L0,0 L0,0 Z" fill="url(#beamGrad)" opacity="0.65"/>
+        </g>
       </svg>
-      <div class="hero-vignette"></div>
-      <div class="signature-stage"><img src="assets/signature.svg" alt=""></div>
+      <div class="hero-flash" id="heroFlash" aria-hidden="true"></div>
       <div class="hero-card">
         <div class="label">Latest Album</div>
         <div class="title">夢想家 The Dreamer</div>
@@ -578,8 +622,9 @@
         <h1>Khalil Fong</h1>
         <div class="cn-name">方大同</div>
         <div class="years">1983 — 2025</div>
+        <a class="hero-enter" id="heroEnter" href="#stats">Enter Memory</a>
       </div>
-      <div class="scroll-hint">Scroll</div>
+      <div class="scroll-hint" id="heroHint">Share a memory · Scroll</div>
     </section>
 
     <section id="stats" class="reveal">
@@ -756,9 +801,6 @@
     <p>Forever in the music. In memory of 方大同.</p>
   </footer>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-
   <script type="module">
     /* ---------- Preloader ---------- */
     const PRELOADER = {
@@ -771,9 +813,7 @@
       init() {
         document.body.classList.add('preloading');
         requestAnimationFrame(() => this.setReady('bg'));
-        this.loadImages(['assets/base.png', 'assets/portrait-light.png', 'assets/signature.svg'])
-          .then(() => this.setReady('images'))
-          .catch(() => this.setReady('images'));
+        this.setReady('images');
       },
 
       loadImages(urls) {
@@ -823,89 +863,175 @@
 
     PRELOADER.init();
 
-    /* ---------- Hero viewport mask & scroll cinematic ---------- */
-    (function initHeroEffects() {
-      gsap.registerPlugin(ScrollTrigger);
-
+    /* ---------- Hero stage spotlight, particles & flash ---------- */
+    (function initHeroStage() {
       const hero = document.getElementById('hero');
-      const heroSvg = document.getElementById('heroSvg');
-      const spotCircle = document.getElementById('spotCircle');
+      const spotlight = document.getElementById('heroSpotlight');
+      const beamGroup = document.getElementById('beamGroup');
+      const lightBeam = document.getElementById('lightBeam');
+      const lightPool = document.getElementById('lightPool');
+      const flash = document.getElementById('heroFlash');
+      const enter = document.getElementById('heroEnter');
+      const canvas = document.getElementById('heroParticles');
       const isTouch = window.matchMedia('(pointer: coarse)').matches;
 
-      // Soft circular viewport follows cursor with eased inertia
-      if (!isTouch && hero && heroSvg && spotCircle) {
-        let mx = -999, my = -999, tx = -999, ty = -999;
-        let active = false;
-        const ease = 0.12;
+      if (!hero || !spotlight || !canvas) return;
 
-        const setTarget = (x, y) => {
-          tx = x;
-          ty = y;
-          active = true;
-        };
-        const getHeroRect = () => heroSvg.getBoundingClientRect();
-        const inHero = (x, y, rect) => x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+      const W = () => hero.clientWidth;
+      const H = () => hero.clientHeight;
 
-        const onMove = (e) => {
-          const c = e.touches ? e.touches[0] : e;
-          const rect = getHeroRect();
-          if (!inHero(c.clientX, c.clientY, rect)) {
-            active = false;
-            return;
-          }
-          setTarget(c.clientX - rect.left, c.clientY - rect.top);
-        };
-        const onLeave = () => {
-          active = false;
-          tx = -999;
-          ty = -999;
-        };
+      // Spotlight state
+      let sx = W() * 0.5, sy = H() * 0.5;
+      let tx = sx, ty = sy;
+      let beamEase = 0.08;
+      let idleTime = 0;
+      let isIdle = false;
 
-        window.addEventListener('mousemove', onMove, { passive: true });
-        window.addEventListener('mouseout', (e) => { if (e.relatedTarget === null) onLeave(); }, { passive: true });
-        window.addEventListener('touchstart', onMove, { passive: true });
-        window.addEventListener('touchmove', onMove, { passive: true });
-        window.addEventListener('touchend', onLeave, { passive: true });
+      function resize() {
+        canvas.width = W();
+        canvas.height = H();
+        sx = W() * 0.5; sy = H() * 0.4;
+        tx = sx; ty = sy;
+      }
+      resize();
+      window.addEventListener('resize', resize, { passive: true });
 
-        gsap.ticker.add(() => {
-          if (!active && Math.abs(tx - mx) < 0.5 && Math.abs(ty - my) < 0.5) return;
-          mx += (tx - mx) * ease;
-          my += (ty - my) * ease;
-          spotCircle.setAttribute('cx', mx);
-          spotCircle.setAttribute('cy', my);
-        });
+      function inHero(x, y) {
+        const rect = hero.getBoundingClientRect();
+        return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
       }
 
-      // Cinematic scroll: pin, shrink portrait, signature rises
-      const heroTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: '#hero',
-          start: 'top top',
-          end: '+=130%',
-          pin: true,
-          scrub: 0.8,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
+      function setTarget(x, y) {
+        tx = x;
+        ty = y;
+        idleTime = 0;
+        isIdle = false;
+      }
+
+      if (!isTouch) {
+        window.addEventListener('mousemove', (e) => {
+          if (!inHero(e.clientX, e.clientY)) return;
+          const rect = hero.getBoundingClientRect();
+          setTarget(e.clientX - rect.left, e.clientY - rect.top);
+        }, { passive: true });
+        window.addEventListener('mouseout', (e) => { if (e.relatedTarget === null) isIdle = true; }, { passive: true });
+      }
+
+      // Beam geometry: source is above the viewport, beam fans down to the pool
+      function updateBeam() {
+        const w = W(), h = H();
+        const sourceX = sx + (sx - w * 0.5) * 0.15;
+        const sourceY = -h * 0.18;
+        const spread = Math.min(w, h) * 0.38;
+        const poolY = h * 0.88;
+        const d = `M${sourceX},${sourceY} L${sx - spread},${poolY} L${sx + spread},${poolY} Z`;
+        lightBeam.setAttribute('d', d);
+        lightPool.setAttribute('cx', sx);
+        lightPool.setAttribute('rx', spread * 0.75);
+        lightPool.setAttribute('ry', spread * 0.22);
+      }
+
+      // Dust particles
+      const ctx = canvas.getContext('2d');
+      const particles = [];
+      const particleCount = isTouch ? 40 : 90;
+      let particleEnergy = 1;
+
+      class Particle {
+        constructor() {
+          this.reset(true);
         }
+        reset(randomY = false) {
+          this.x = Math.random() * W();
+          this.y = randomY ? Math.random() * H() : -10;
+          this.size = Math.random() * 1.6 + 0.3;
+          this.speedY = Math.random() * 0.4 + 0.15;
+          this.speedX = (Math.random() - 0.5) * 0.3;
+          this.life = Math.random() * 0.6 + 0.4;
+          this.opacity = Math.random() * 0.5 + 0.2;
+        }
+        update() {
+          const energy = particleEnergy;
+          this.x += this.speedX * energy + (Math.random() - 0.5) * 0.2;
+          this.y += this.speedY * energy;
+          this.life -= 0.003 * energy;
+          if (this.life <= 0 || this.y > H() + 10 || this.x < -10 || this.x > W() + 10) {
+            this.reset();
+          }
+        }
+        draw() {
+          const dist = Math.hypot(this.x - sx, this.y - sy);
+          const inBeam = dist < Math.min(W(), H()) * 0.35 && this.y > sy - 50;
+          const glow = inBeam ? 1.6 : 0.7;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255,248,220,${this.opacity * this.life * glow * particleEnergy})`;
+          ctx.fill();
+        }
+      }
+
+      for (let i = 0; i < particleCount; i++) particles.push(new Particle());
+
+      // Flash transition
+      function flashAndScroll(target = '#stats') {
+        if (!flash) return;
+        flash.classList.remove('flash-anim');
+        void flash.offsetWidth; // reflow
+        flash.classList.add('flash-anim');
+        setTimeout(() => {
+          const el = document.querySelector(target);
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 220);
+      }
+
+      if (enter) enter.addEventListener('click', (e) => { e.preventDefault(); flashAndScroll('#stats'); });
+      hero.addEventListener('click', (e) => {
+        if (e.target.closest('.hero-card') || e.target.closest('.hero-enter')) return;
+        flashAndScroll('#stats');
       });
 
-      heroTl
-        // light layer keeps shrinking throughout; base spreads outward first, then shrinks
-        .to('#heroSvg .hero-light', { scale: 0.55, duration: 1, ease: 'none' }, 0)
-        .fromTo('#heroSvg .hero-base', { scale: 1 }, { scale: 1.2, duration: 0.5, ease: 'power2.out' }, 0)
-        .to('#heroSvg .hero-base', { scale: 0.55, duration: 0.5, ease: 'power2.in' }, 0.5)
-        .to('#hero .hero-content', { opacity: 0, y: -40, duration: 0.25 }, 0)
-        .to('#hero .hero-card', { opacity: 0, y: 30, duration: 0.25 }, 0)
-        .to('.scroll-hint', { opacity: 0, duration: 0.08 }, 0)
-        .fromTo('.signature-stage',
-          { y: '60vh', opacity: 0, scale: 0.92 },
-          { y: '-50%', opacity: 1, scale: 1, duration: 0.5, ease: 'power2.out' },
-          0.35
-        )
-        // as text fades, spotlight interaction ends and base replaces the light layer
-        .to('#heroSvg .hero-light', { opacity: 0, duration: 0.25 }, 0.25);
+      // Animation loop
+      let rafId;
+      let spotlightActive = false;
+      function loop() {
+        sx += (tx - sx) * beamEase;
+        sy += (ty - sy) * beamEase;
 
-      window.addEventListener('preloader:done', () => ScrollTrigger.refresh(), { once: true });
+        idleTime += 16;
+        if (idleTime > 1200) isIdle = true;
+
+        // Particles become more energetic when mouse moves, dreamy when idle
+        const targetEnergy = isIdle ? 0.6 : 1.35;
+        particleEnergy += (targetEnergy - particleEnergy) * 0.02;
+
+        updateBeam();
+        if (!spotlightActive) {
+          spotlight.classList.add('active');
+          spotlightActive = true;
+        }
+
+        ctx.clearRect(0, 0, W(), H());
+        particles.forEach(p => { p.update(); p.draw(); });
+
+        rafId = requestAnimationFrame(loop);
+      }
+
+      // Start after preloader
+      window.addEventListener('preloader:done', () => {
+        loop();
+      }, { once: true });
+
+      // Pause when hero is not visible
+      const visibilityObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !rafId) loop();
+          else if (!entry.isIntersecting && rafId) {
+            cancelAnimationFrame(rafId);
+            rafId = null;
+          }
+        });
+      }, { threshold: 0.05 });
+      visibilityObserver.observe(hero);
     })();
 
     /* ---------- Menu ---------- */
